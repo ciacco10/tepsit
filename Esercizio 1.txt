@@ -1,0 +1,80 @@
+Esercizio 1
+Stato dei thread:
+import java.util.Random;
+
+class ContatoreThread extends Thread {
+    private int contatore;
+    private int valoreMassimo;
+    private boolean completato;
+
+    public ContatoreThread(int valoreMassimo) {
+        this.valoreMassimo = valoreMassimo;
+        this.contatore = 0;
+        this.completato = false;
+    }
+
+    public int getContatore() {
+        return contatore;
+    }
+
+    public boolean isCompletato() {
+        return completato;
+    }
+
+    public void run() {
+        try {
+            while (contatore <= valoreMassimo) {
+                Thread.sleep(120);  // Aspetta 120ms
+                contatore++;
+            }
+            completato = true;  // Thread completato
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+public class StatoDeiThread {
+    public static void main(String[] args) throws InterruptedException {
+        java.util.Scanner scanner = new java.util.Scanner(System.in);
+
+        // Chiedi all'utente il numero di thread (T) e il valore massimo (N)
+        System.out.print("Inserisci il numero di thread (T): ");
+        int numeroThread = scanner.nextInt();
+        System.out.print("Inserisci il valore massimo (N): ");
+        int valoreMassimo = scanner.nextInt();
+
+        Random casuale = new Random();
+        ContatoreThread[] threads = new ContatoreThread[numeroThread];
+
+        // Creiamo i thread
+        for (int i = 0; i < numeroThread; i++) {
+            int massimoConteggio = casuale.nextInt(valoreMassimo + 1); // X compreso tra 0 e N
+            threads[i] = new ContatoreThread(massimoConteggio);
+            threads[i].start();  // Avvia il thread
+        }
+
+        boolean tuttiCompletati = false;
+        while (!tuttiCompletati) {
+            tuttiCompletati = true;
+            System.out.println("\nStato dei thread:");
+
+            // Controlliamo lo stato di ogni thread
+            for (int i = 0; i < numeroThread; i++) {
+                if (threads[i].isAlive()) {
+                    tuttiCompletati = false;
+                    System.out.println("Thread " + (i + 1) + ": in esecuzione, valore attuale = " + threads[i].getContatore());
+                } else if (threads[i].isCompletato()) {
+                    System.out.println("Thread " + (i + 1) + ": COMPLETATO");
+                }
+            }
+
+            // Aspetta un secondo prima di aggiornare lo stato
+            Thread.sleep(1000);
+        }
+
+        // Quando tutti i thread hanno completato
+        System.out.println("\nTUTTI I THREAD COMPLETATI");
+        scanner.close();
+    }
+}
